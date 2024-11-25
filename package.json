@@ -1,0 +1,35 @@
+{
+  "name": "id-mobile-detector",
+  "version": "1.0.0",
+  "description": "A lightweight library to detect Indonesian mobile provider based on phone number prefixes.",
+  "author": "Raka Widhi Antoro <rakawidhiantoro@gmail.com>",
+  "license": "MIT",
+  "funding": {
+    "type": "patreon",
+    "url": "https://www.patreon.com/zororaka"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zororaka00/id-mobile-detector.git"
+  },
+  "bugs": {
+    "url": "https://github.com/zororaka00/id-mobile-detector/issues"
+  },
+  "homepage": "https://github.com/zororaka00/id-mobile-detector#readme",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "indonesia",
+    "phone-number",
+    "mobile-provider",
+    "validation",
+    "detection",
+    "phone"
+  ],
+  "devDependencies": {
+    "@types/node": "^22.9.3",
+    "typescript": "^5.7.2"
+  }
+}
