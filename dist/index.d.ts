@@ -3,3 +3,5 @@ declare const providerPrefixes: {
 };
 declare function detectProvider(phoneNumber: string): string;
 //# sourceMappingURL=index.d.ts.map
+
+export { detectProvider, providerPrefixes };
