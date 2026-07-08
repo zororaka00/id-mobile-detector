@@ -1,6 +1,6 @@
 {
   "name": "id-mobile-detector",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "A lightweight library to detect Indonesian mobile provider based on phone number prefixes.",
   "author": "Raka Widhi Antoro <rakawidhiantoro@gmail.com>",
   "license": "MIT",
@@ -18,7 +18,9 @@
   "homepage": "https://github.com/zororaka00/id-mobile-detector#readme",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "test": "jest",
+    "test:coverage": "jest --coverage"
   },
   "keywords": [
     "indonesia",
@@ -29,7 +31,10 @@
     "phone"
   ],
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/node": "^22.9.3",
-    "typescript": "^5.7.2"
+    "jest": "^30.4.2",
+    "ts-jest": "^29.4.11",
+    "typescript": "^5.9.3"
   }
 }

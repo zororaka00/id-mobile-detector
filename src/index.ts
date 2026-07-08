@@ -1,4 +1,11 @@
 import providersData from './providers.json';
+import hlrData from './hlr-data.json';
+
+type RangeEntry = { start: number; end: number; length: number };
+type PrefixEntry = {
+   provider: string;
+   locations: Record<string, RangeEntry[]>;
+};
 
 /**
  * Interface for Provider Metadata
@@ -14,16 +21,60 @@ export interface ProviderMetadata {
  * Interface for Detection Result
  */
 export interface DetectionResult {
-    provider: string;
-    brand?: string;
-    network?: string;
-    prefix?: string;
-}
+     provider: string;
+     brand?: string;
+     network?: string;
+     prefix?: string;
+     location?: string;
+     locationDetail?: string;
+ }
 
 // Map for faster lookup
 const providerMap: Map<string, ProviderMetadata> = new Map(
     providersData.map(item => [item.prefix, item])
 );
+
+function toDigitsOnly(value: string): string {
+    return value.replace(/[^0-9]/g, '');
+}
+
+function normalizeLocal(value: string): string {
+    let cleaned = toDigitsOnly(value);
+    if (cleaned.startsWith('62') && cleaned.length >= 10) {
+        cleaned = '0' + cleaned.substring(2);
+    }
+    return cleaned;
+}
+
+function extractPrefix(cleaned: string): string | null {
+    if (cleaned.startsWith('08') && cleaned.length >= 10) {
+        return cleaned.substring(0, 4);
+    }
+    return null;
+}
+
+function findLocationForPrefix(cleaned: string, entry: PrefixEntry | undefined): { location: string; detail: string } | null {
+    if (!entry || !entry.locations) {
+        return null;
+    }
+
+    const locations = entry.locations;
+    for (const [location, rawRanges] of Object.entries(locations)) {
+        const typedRanges: RangeEntry[] = rawRanges as RangeEntry[];
+        for (const range of typedRanges) {
+            const length = range.length || String(range.start).length;
+            if (cleaned.length < 4 + length) {
+                continue;
+            }
+            const prefixPart = Number(cleaned.substring(4, 4 + length));
+            if (prefixPart >= range.start && prefixPart <= range.end) {
+                return { location, detail: location };
+            }
+        }
+    }
+
+    return null;
+}
 
 /**
  * Detect provider by phone number.
@@ -42,31 +93,74 @@ export function detectProvider(phoneNumber: string): string {
  * @returns Detailed provider information or error message.
  */
 export function getProviderDetails(phoneNumber: string): DetectionResult | string {
-    // Remove non-numeric characters and ensure it's a valid length
-    let cleanedNumber = phoneNumber.replace(/[^0-9+]/g, "");  // Allow '+' to be part of number
+    const cleaned = normalizeLocal(phoneNumber);
 
-    // Handle case where the number starts with '+628', change it to '08'
-    if (cleanedNumber.startsWith("+628")) {
-        cleanedNumber = "08" + cleanedNumber.substring(3);
+    if (cleaned.length < 10 || cleaned.length > 13 || !cleaned.startsWith('08')) {
+        return 'Invalid phone number';
     }
 
-    // Check if it's a valid phone number length and starts with '08'
-    if (cleanedNumber.length < 10 || cleanedNumber.length > 13 || !cleanedNumber.startsWith("08")) {
-        return "Invalid phone number";
+    const prefix = extractPrefix(cleaned);
+    if (!prefix) {
+        return 'Invalid phone number';
     }
 
-    // Check prefixes (first 4 digits)
-    const prefix = cleanedNumber.substring(0, 4);
     const metadata = providerMap.get(prefix);
-
-    if (metadata) {
-        return {
-            provider: metadata.provider,
-            brand: metadata.brand,
-            network: metadata.network,
-            prefix: metadata.prefix
-        };
+    if (!metadata) {
+        return 'Unknown provider';
     }
 
-    return "Unknown provider";
+    const hlrPrefixes = ((hlrData as any).prefixes) as Record<string, PrefixEntry>;
+    const entry = hlrPrefixes[prefix];
+    const locationInfo = findLocationForPrefix(cleaned, entry);
+
+    return {
+        provider: metadata.provider,
+        brand: metadata.brand,
+        network: metadata.network,
+        prefix: metadata.prefix,
+        location: locationInfo?.location,
+        locationDetail: locationInfo?.detail
+    };
 }
+
+export interface LocationResult {
+     location?: string;
+     locationDetail?: string;
+ }
+
+/**
+ * Get possible location details for a phone number.
+ * @param phoneNumber - The phone number to inspect.
+ * @returns Location information when available.
+ */
+export function detectLocation(phoneNumber: string): LocationResult | string {
+    const cleaned = normalizeLocal(phoneNumber);
+
+    if (cleaned.length < 10 || cleaned.length > 13 || !cleaned.startsWith('08')) {
+        return 'Invalid phone number';
+    }
+
+    const prefix = extractPrefix(cleaned);
+    if (!prefix) {
+        return 'Invalid phone number';
+    }
+
+    const hlrPrefixes = ((hlrData as any).prefixes) as Record<string, PrefixEntry>;
+    const entry = hlrPrefixes[prefix];
+    if (!entry) {
+        return 'Unknown provider';
+    }
+
+    const locationInfo = findLocationForPrefix(cleaned, entry);
+
+    if (!locationInfo) {
+        return 'Location not mapped';
+    }
+
+    return {
+        location: locationInfo.location,
+        locationDetail: locationInfo.detail
+    };
+}
+
+export { providersData };

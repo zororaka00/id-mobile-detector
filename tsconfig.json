@@ -18,7 +18,8 @@
       "lib": ["ES2020"]                  // Include modern JavaScript libraries and features up to ES2020.
     },
     "include": [
-      "src/**/*.ts"                      // Include all TypeScript files in the src directory and its subdirectories.
+      "src/**/*.ts",
+      "test/**/*.ts"
     ],
     "exclude": [
       "node_modules",                    // Exclude node_modules to avoid compiling dependencies.

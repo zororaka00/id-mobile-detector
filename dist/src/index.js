@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.providersData = void 0;
 exports.detectProvider = detectProvider;
 exports.getProviderDetails = getProviderDetails;
-exports.detectRegion = detectRegion;
+exports.detectLocation = detectLocation;
 const providers_json_1 = __importDefault(require("./providers.json"));
 exports.providersData = providers_json_1.default;
 const hlr_data_json_1 = __importDefault(require("./hlr-data.json"));
@@ -27,12 +27,12 @@ function extractPrefix(cleaned) {
     }
     return null;
 }
-function findRegionForPrefix(cleaned, entry) {
-    if (!entry || !entry.regions) {
+function findLocationForPrefix(cleaned, entry) {
+    if (!entry || !entry.locations) {
         return null;
     }
-    const regions = entry.regions;
-    for (const [region, rawRanges] of Object.entries(regions)) {
+    const locations = entry.locations;
+    for (const [location, rawRanges] of Object.entries(locations)) {
         const typedRanges = rawRanges;
         for (const range of typedRanges) {
             const length = range.length || String(range.start).length;
@@ -41,7 +41,7 @@ function findRegionForPrefix(cleaned, entry) {
             }
             const prefixPart = Number(cleaned.substring(4, 4 + length));
             if (prefixPart >= range.start && prefixPart <= range.end) {
-                return { region, detail: region };
+                return { location, detail: location };
             }
         }
     }
@@ -68,17 +68,17 @@ function getProviderDetails(phoneNumber) {
     }
     const hlrPrefixes = (hlr_data_json_1.default.prefixes);
     const entry = hlrPrefixes[prefix];
-    const regionInfo = findRegionForPrefix(cleaned, entry);
+    const locationInfo = findLocationForPrefix(cleaned, entry);
     return {
         provider: metadata.provider,
         brand: metadata.brand,
         network: metadata.network,
         prefix: metadata.prefix,
-        region: regionInfo?.region,
-        regionDetail: regionInfo?.detail
+        location: locationInfo?.location,
+        locationDetail: locationInfo?.detail
     };
 }
-function detectRegion(phoneNumber) {
+function detectLocation(phoneNumber) {
     const cleaned = normalizeLocal(phoneNumber);
     if (cleaned.length < 10 || cleaned.length > 13 || !cleaned.startsWith('08')) {
         return 'Invalid phone number';
@@ -92,13 +92,13 @@ function detectRegion(phoneNumber) {
     if (!entry) {
         return 'Unknown provider';
     }
-    const regionInfo = findRegionForPrefix(cleaned, entry);
-    if (!regionInfo) {
-        return 'Region not mapped';
+    const locationInfo = findLocationForPrefix(cleaned, entry);
+    if (!locationInfo) {
+        return 'Location not mapped';
     }
     return {
-        region: regionInfo.region,
-        regionDetail: regionInfo.detail
+        location: locationInfo.location,
+        locationDetail: locationInfo.detail
     };
 }
 //# sourceMappingURL=index.js.map
