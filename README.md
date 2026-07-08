@@ -36,7 +36,67 @@ Detects the provider based on the phone number prefix.
 #### Returns:
 - `string`: The name of the mobile provider (e.g., "Telkomsel", "Indosat", "XL", etc.), or "Unknown provider" if the provider is not found. If the phone number is invalid, it returns "Invalid phone number".
 
+### Function: `getProviderDetails`
+
+Gets detailed provider information including brand, network, prefix, and location.
+
+#### Parameters:
+- `phoneNumber` (string): The phone number to detect. It should be a string containing only digits and an optional leading `+` (for international format).
+
+#### Returns:
+- `DetectionResult | string`: Detailed provider information including:
+  - `provider` (string): The name of the mobile provider
+  - `brand` (string, optional): The brand name (e.g., "simPATI", "Kartu HALO")
+  - `network` (string, optional): The network type (e.g., "GSM", "CDMA/4G")
+  - `prefix` (string, optional): The detected prefix
+  - `location` (string, optional): The location/region information
+  - `locationDetail` (string, optional): Additional location details
+- Returns "Invalid phone number" or "Unknown provider" as string error messages.
+
 ### Example:
+
+```typescript
+import { getProviderDetails } from 'id-mobile-detector';
+
+const phoneNumber = "081234567890";
+const details = getProviderDetails(phoneNumber);
+
+console.log(details);
+// Output: {
+//   provider: "Telkomsel",
+//   brand: "simPATI",
+//   network: "GSM",
+//   prefix: "0812",
+//   location: "Jakarta",
+//   locationDetail: "Jakarta"
+// }
+```
+
+### Function: `detectLocation`
+
+Detects the location/region information for a phone number.
+
+#### Parameters:
+- `phoneNumber` (string): The phone number to inspect. It should be a string containing only digits and an optional leading `+` (for international format).
+
+#### Returns:
+- `LocationResult | string`: Location information including:
+  - `location` (string, optional): The location/region name
+  - `locationDetail` (string, optional): Additional location details
+- Returns "Invalid phone number", "Unknown provider", or "Location not mapped" as string error messages.
+
+### Example:
+
+```typescript
+import { detectLocation } from 'id-mobile-detector';
+
+const phoneNumber = "08111234567";
+const location = detectLocation(phoneNumber);
+
+console.log(detectLocation("08111234567")); // Output: { location: "Jakarta", locationDetail: "Jakarta" }
+```
+
+### Example (detectProvider):
 
 ```typescript
 // Valid phone numbers
@@ -49,6 +109,36 @@ console.log(detectProvider("0812"));  // Output: Invalid phone number
 // Unknown provider
 console.log(detectProvider("090000000000"));  // Output: Unknown provider
 ```
+
+## Interfaces
+
+### `DetectionResult`
+
+```typescript
+interface DetectionResult {
+  provider: string;
+  brand?: string;
+  network?: string;
+  prefix?: string;
+  location?: string;
+  locationDetail?: string;
+}
+```
+
+### `LocationResult`
+
+```typescript
+interface LocationResult {
+  location?: string;
+  locationDetail?: string;
+}
+```
+
+## Exports
+
+- `providersData` - Array of provider metadata for all supported prefixes
+- `DetectionResult` - Interface for detection result
+- `LocationResult` - Interface for location result
 
 ## Prefix Mapping
 
