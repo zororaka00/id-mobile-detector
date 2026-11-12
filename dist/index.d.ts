@@ -10,15 +10,15 @@ export interface DetectionResult {
     brand?: string;
     network?: string;
     prefix?: string;
-    region?: string;
-    regionDetail?: string;
+    location?: string;
+    locationDetail?: string;
 }
 export declare function detectProvider(phoneNumber: string): string;
 export declare function getProviderDetails(phoneNumber: string): DetectionResult | string;
-export interface RegionResult {
-    region?: string;
-    regionDetail?: string;
+export interface LocationResult {
+    location?: string;
+    locationDetail?: string;
 }
-export declare function detectRegion(phoneNumber: string): RegionResult | string;
+export declare function detectLocation(phoneNumber: string): LocationResult | string;
 export { providersData };
 //# sourceMappingURL=index.d.ts.map

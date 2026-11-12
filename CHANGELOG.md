@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.2](https://github.com/zororaka00/id-mobile-detector/compare/v2.0.1...v2.0.2) (2026-11-13)
+
+
+### Bug Fixes
+
+* **dist:** rebuild the committed entry point so `main` serves the 2.0.0 location API instead of the pre-rename `detectRegion`/`RegionResult` build
+* emit `dist/index.js` directly by setting `rootDir`, instead of `dist/src/index.js`
+* add `types`, `exports` and `files` so TypeScript resolves the built declarations and only build output is packaged
+
 ### [2.0.1](https://github.com/zororaka00/id-mobile-detector/compare/v2.0.0...v2.0.1) (2026-07-08)
 
 ## [2.0.0](https://github.com/zororaka00/id-mobile-detector/compare/v1.1.0...v2.0.0) (2026-07-09)

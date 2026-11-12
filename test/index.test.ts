@@ -1,3 +1,5 @@
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { detectProvider, getProviderDetails, detectLocation, providersData } from '../src/index';
 
 describe('id-mobile-detector', () => {
@@ -336,6 +338,48 @@ describe('id-mobile-detector', () => {
     it('should contain Smartfren providers', () => {
       const smartfrenProviders = providersData.filter(p => p.provider === 'Smartfren');
       expect(smartfrenProviders.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('published artifact contract', () => {
+    // The suite above imports src, which kept passing while dist/ shipped the v1 API.
+    const distDir = path.resolve(__dirname, '..', 'dist');
+    const pkg = require('../package.json');
+
+    it('should point main and types at files the build produces', () => {
+      expect(fs.existsSync(path.resolve(__dirname, '..', pkg.main))).toBe(true);
+      expect(fs.existsSync(path.resolve(__dirname, '..', pkg.types))).toBe(true);
+    });
+
+    it('should not leave nested build output in dist', () => {
+      expect(fs.readdirSync(distDir)).not.toContain('src');
+      expect(fs.readdirSync(distDir)).not.toContain('test');
+    });
+
+    it('should serve the current API instead of the v1 region API', () => {
+      const built = require(path.resolve(distDir, 'index.js'));
+      expect(typeof built.detectProvider).toBe('function');
+      expect(typeof built.getProviderDetails).toBe('function');
+      expect(typeof built.detectLocation).toBe('function');
+      expect(Array.isArray(built.providersData)).toBe(true);
+      expect(built.detectRegion).toBeUndefined();
+      expect(built.detectProvider('08111234567')).toBe('Telkomsel');
+      expect(built.detectProvider('08901234567')).toBe('Unknown provider');
+    });
+
+    it('should return location fields from the built module', () => {
+      const built = require(path.resolve(distDir, 'index.js'));
+      const details = built.getProviderDetails('08111234567');
+      expect(details).toEqual(expect.objectContaining({ provider: 'Telkomsel', prefix: '0811' }));
+      expect(Object.prototype.hasOwnProperty.call(details, 'region')).toBe(false);
+      expect(built.detectLocation('08111234567')).toHaveProperty('location');
+    });
+
+    it('should type the built entry point with the current API', () => {
+      const declarations = fs.readFileSync(path.resolve(distDir, 'index.d.ts'), 'utf8');
+      expect(declarations).toContain('detectLocation');
+      expect(declarations).toContain('LocationResult');
+      expect(declarations).not.toMatch(/detectRegion|RegionResult/);
     });
   });
 });

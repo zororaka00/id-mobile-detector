@@ -5,6 +5,7 @@
       "declaration": true,               // Generate .d.ts declaration files for TypeScript consumers.
       "declarationMap": true,            // Include source maps for declaration files to improve debugging.
       "outDir": "./dist",                // Directory where compiled files will be placed.
+      "rootDir": "./src",                // Keep dist/ mirroring src/, so main points at the built entry point.
       "strict": true,                    // Enable strict type-checking for safer code.
       "esModuleInterop": true,           // Ensure compatibility with CommonJS and ES module imports.
       "skipLibCheck": true,              // Skip type checking for declaration files in node_modules.
@@ -18,8 +19,7 @@
       "lib": ["ES2020"]                  // Include modern JavaScript libraries and features up to ES2020.
     },
     "include": [
-      "src/**/*.ts",
-      "test/**/*.ts"
+      "src/**/*.ts"                      // Tests are compiled by ts-jest, not by the build that feeds dist/.
     ],
     "exclude": [
       "node_modules",                    // Exclude node_modules to avoid compiling dependencies.
